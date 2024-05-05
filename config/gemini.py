@@ -15,5 +15,3 @@ def generate_gemini_content(prompt):
     response = model.generate_content(prompt)
     
     return response.text
-
-print(generate_gemini_content("oi"))

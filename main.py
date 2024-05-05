@@ -1,34 +1,36 @@
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
-from config.gemini import generate_content
-import os
-import google.generativeai as genai
+from google.generativeai import *
+from config.gemini import generate_gemini_content
 
 app = Flask(__name__)
 
-@app.route('/index')
-def index():
-    return 'Funcionou'
-
 @app.route('/bot', methods=['POST'])
 def bot():
-    # Imprime os valores recebidos na solicitação POST
-    print(request.values)
-
     # Acessa o corpo da mensagem
-    mensagem = request.values.get('Body', '')
-
-    # Chama a função gemini() e armazena a resposta
-    resposta_gemini = generate_content(mensagem)
-
-    # Cria uma resposta do Twilio
+    mensagem = request.values.get('Body', '').lower()
+    
+    # Inicializa a resposta do Twilio
     resp = MessagingResponse()
+    
+    # Definindo msg fora do bloco condicional
     msg = resp.message()
 
-    # Define a resposta do bot como a resposta do Gemini
-    msg.body(resposta_gemini)
-
-    # Retorna a resposta como uma string
+    # Verifica se a mensagem contém a palavra "consulta"
+    if 'consulta' in mensagem:
+        # Se sim, pergunta se o usuário quer marcar uma consulta
+        msg.body('Você gostaria de marcar uma consulta? Responda com "sim" ou "não".')
+    elif mensagem == 'sim':
+        # Se a resposta for "sim", confirma a marcação da consulta
+        msg.body('Consulta marcada.')
+    elif mensagem == 'não':
+        # Se a resposta for "não", informa ao usuário que não há consulta marcada
+        msg.body('Ok, sem problemas. Se precisar de algo mais, estou à disposição.')
+    else:
+        responseIA = generate_gemini_content(mensagem)
+        msg.body(responseIA)
+    
+    # Retorna a resposta do Twilio
     return str(resp)
 
 if __name__ == '__main__':
