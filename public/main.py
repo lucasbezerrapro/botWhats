@@ -4,7 +4,9 @@ from google.generativeai import *
 from config.gemini import generate_gemini_content
 
 app = Flask(__name__)
-
+@app.route('/', methods=['GET'])
+def index():
+    return 'bot funcionando'
 @app.route('/bot', methods=['POST'])
 def bot():
     # Acessa o corpo da mensagem
